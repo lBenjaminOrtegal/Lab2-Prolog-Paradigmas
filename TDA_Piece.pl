@@ -1,4 +1,5 @@
 % TDA PIECE
-% Constructor PIECE
+
+% --- Constructor --- %
 
 piece(Color,[Color]).

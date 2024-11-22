@@ -1,9 +1,11 @@
 % TDA PLAYER
-% Constructor PLAYER
+
+% --- Constructor --- %
 
 player(Nombre,Id,Color,Wins,Losses,Draws,Pieces,[Nombre,Id,Color,Wins,Losses,Draws,Pieces]).
 
-% Selector PLAYER
+% --- Selectores --- %
+
 get-player-nombre([Nombre|_],Nombre).
 
 get-player-id([_,Id|_],Id).
