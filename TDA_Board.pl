@@ -6,25 +6,43 @@
 % Dominio: No recibe parametros de entrada
 % Metas Primarias: board.
 % Metas Secundarias: No posee metas secundarias
-% Descripción: Predicado que crea un tda board
+% Descripción: Predicado que crea un TDA board.
 
-board([[],[],[],[],[],[],[]]).
+board([[[],[],[],[],[],[],[]],[]]).
 
 % ---------- Modificadores ---------- %
 
 % play_piece
 % Dominio: Board (board) X Column (int) X Piece (piece) X NewBoard (board)
 % Metas Primarias: play_piece.
-% Metas Secundarias: push_column
+% Metas Secundarias: play_piece_aux, push_column, update_history
 % Descripción: Jugar una ficha en el tablero
 
-play_piece([ActualColumn | RestOfColumns], 1, Piece, [NewColumn | RestOfColumns]) :-  % Caso Base, se llega a la columna indicada => se hace push de la pieza a columna y se retorna.
+play_piece([Board | History], ColumnIndex, Piece, [NewBoard | NewHistory]) :-
+    play_piece_aux(Board, ColumnIndex, ColumnIndex, Piece, NewBoard),
+    update_history(History, Piece, ColumnIndex, NewHistory).
+
+% play_piece_aux
+% Dominio: Board (board) X ColumnIndexVariable (int) X ColumnIndex (int) X Piece (piece) X NewBoard (board)
+% Metas Primarias: play_piece_aux, push_column
+% Metas Secundarias: play_piece_aux, push_column, update_history
+% Descripción: Jugar una ficha en el tablero
+
+play_piece_aux([ActualColumn | RestOfColumns], 1, _, Piece, [NewColumn | RestOfColumns]) :-  
     push_column(ActualColumn, Piece, NewColumn).
 
-play_piece([ActualColumn | RestOfColumns], ColumnIndex, Piece, [ActualColumn | NewBoard]) :- % Caso Recursivo, se verifica que el indice no sea el indicado y se retorna recursivamente con el resto de columnas
-    ColumnIndex > 1,
-    NewColumnIndex is ColumnIndex - 1, 
-    play_piece(RestOfColumns, NewColumnIndex, Piece, NewBoard).
+play_piece_aux([ActualColumn | RestOfColumns], ColumnIndexVariable, ColumnIndex, Piece, [ActualColumn | NewBoard]) :-
+    ColumnIndexVariable > 1,
+    NewColumnIndexVariable is ColumnIndexVariable - 1,
+    play_piece_aux(RestOfColumns, NewColumnIndexVariable, ColumnIndex, Piece, NewBoard).
+
+% update_history
+% Dominio: History (list) X Piece (piece) X Index (int)
+% Metas Primarias: play_piece_aux, push_column
+% Metas Secundarias: No posee metas secundarias
+% Descripción: Actualizar historial del tablero.
+
+update_history(History, Piece, Index, [[Piece, Index] | History]).
 
 % push_column
 % Dominio: Column (list) X Piece (piece) X NewColumn (list)
@@ -43,22 +61,31 @@ push_column(Column, Piece, [Piece | Column]) :-
 % Metas Secundarias: No posee metas secundarias
 % Descripción: Predicado que permite verificar si se puede realizar más jugadas en el tablero.
 
-can_play([A, B, C, D, E, F, G]) :- 
+can_play([[A, B, C, D, E, F, G] | _]) :- 
     length(A, LA), length(B, LB), length(C, LC), length(D, LD), length(E, LE), length(F, LF), length(G, LG),
     (LA, LB, LC, LD, LE, LF, LG) == 6 -> false ; true.
 
 % check_vertical_win
-% Dominio: Board (board)
-% Metas Primarias: check_vertical_win
+% Dominio: Board (board) X Winner (int)
+% Metas Primarias: check_vertical_win 
+% Metas Secundarias: check_vertical_win_aux, check_column_win
+% Descripcion: Predicado que permite verificar el estado actual del tablero y entregar el posible ganador que cumple con la regla de conectar 4 fichas de forma vertical.
+
+check_vertical_win([Board | _], Winner) :-
+    check_vertical_win_aux(Board, Winner).
+
+% check_vertical_win_aux
+% Dominio: Board (board) X Winner (int)
+% Metas Primarias: check_vertical_win 
 % Metas Secundarias: check_column_win
 % Descripcion: Predicado que permite verificar el estado actual del tablero y entregar el posible ganador que cumple con la regla de conectar 4 fichas de forma vertical.
 
-check_vertical_win([], 0). % Caso Base, Empate
+check_vertical_win_aux([], 0). % Caso Base, Empate
 
-check_vertical_win([ActualColumn | RestOfColumns], Winner) :- 
+check_vertical_win_aux([ActualColumn | RestOfColumns], Winner) :- 
     (length(ActualColumn, Largo), Largo >= 4, check_column_win(ActualColumn, Winner) ->
     true ; % Caso Base, Hay ganador en columna actual
-    check_vertical_win(RestOfColumns, Winner)). % Caso Recursivo, No hay ganador en columna actual
+    check_vertical_win_aux(RestOfColumns, Winner)). % Caso Recursivo, No hay ganador en columna actual
 
 % check_column_win
 % Dominio: Column (list)
@@ -72,3 +99,69 @@ check_column_win([A, B, C, D | _], Winner) :- % Caso Base, A, B, C, D son iguale
 
 check_column_win([_ | Resto], Winner) :- % Caso Recursivo, Se sigue iterando en la columna para encontrar ganador
     check_column_win(Resto, Winner).
+
+% fill_board
+% Dominio: Board (board)
+% Metas Primarias: fill_board
+% Metas Secundarias: fill_column
+% Descripcion: Predicado que rellena el board.
+
+fill_board([], []).
+
+fill_board([ActualColumn | RestOfColumns], [FilledColumn | FilledBoard]) :-
+    fill_column(ActualColumn, FilledColumn),
+    fill_board(RestOfColumns, FilledBoard).
+
+% fill_column
+% Dominio: Column (list)
+% Metas Primarias: fill_column
+% Metas Secundarias: No posee metas secundarias
+% Descripcion: Predicado que rellena una columna de un board.
+
+fill_column(Column, FilledColumn) :-
+    length(Column, Largo),
+    Largo < 6 ->
+    push_column(Column, " ", NewColumn),
+    fill_column(NewColumn, FilledColumn) ;
+    FilledColumn = Column.
+
+% check_horizontal_win
+% Dominio: Board (board) X Winner (int)
+% Metas Primarias: check_horizontal_win
+% Metas Secundarias: check_horizontal_win_aux, check_row_win, fill_board, fill_column
+% Descripcion: Predicado que permite verificar si existe una victoria horizontal en un board.
+
+check_horizontal_win([Board | _], Winner) :-
+    check_horizontal_win_aux(Board, Winner).
+
+% check_horizontal_win_aux
+% Dominio: Board (board) X Winner (int)
+% Metas Primarias: check_horizontal_win_aux
+% Metas Secundarias: check_row_win, fill_board, fill_column
+% Descripcion: Predicado que permite verificar si existe una victoria horizontal en un board.
+
+check_horizontal_win_aux(Board, Winner) :-
+    fill_board(Board, FilledBoard),
+    check_row_win(FilledBoard, 6, Winner).
+
+% check_row_win
+% Dominio: Board (board)
+% Metas Primarias: check_row_win
+% Metas Secundarias: No posee metas secundarias
+% Descripcion: Predicado que permite verificar si existe una victoria en una fila.
+
+check_row_win(Board, _, 0) :-
+    length(Board, Largo),
+    Largo < 4.
+
+check_row_win([_ | RestOfColumns], 0, Winner) :-
+    check_row_win(RestOfColumns, 6, Winner).
+
+check_row_win([A, B, C, D | _], Index, Winner) :-
+    nth1(Index, A, TA), nth1(Index, B, TB), nth1(Index, C, TC), nth1(Index, D, TD),
+    TA == TB, TB == TC, TC == TD, TA \= " ",
+    (TA == "red" -> Winner = 1; Winner = 2).
+
+check_row_win(Board, Index, Winner) :-
+    NIndex is Index - 1,
+    check_row_win(Board, NIndex, Winner). 
