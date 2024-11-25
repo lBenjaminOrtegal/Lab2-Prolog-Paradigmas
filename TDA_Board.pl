@@ -165,3 +165,63 @@ check_row_win([A, B, C, D | _], Index, Winner) :-
 check_row_win(Board, Index, Winner) :-
     NIndex is Index - 1,
     check_row_win(Board, NIndex, Winner). 
+
+% check_diagonal_win
+% Dominio: Board (board) X Winner (int)
+% Metas Primarias: check_diagonal_win
+% Metas Secundarias: fill_board, check_diagonal_superior_win, check_diagonal_inferior_win
+% Descripcion: Predicado que permite verificar si existe una victoria diagonal en el tablero.
+
+check_diagonal_win(_, 0).
+
+check_diagonal_win([Board | _], Winner) :-
+    fill_board(Board, FilledBoard),
+    (check_diagonal_superior_win(FilledBoard, 6, Winner) ;
+    check_diagonal_inferior_win(FilledBoard, 1, Winner)),
+    Winner \= 0, !.
+
+% check_diagonal_superior_win
+% Dominio: Board (board) X Winner (int)
+% Metas Primarias: check_diagonal_win_superior
+% Metas Secundarias: No posee metas secundarias.
+% Descripcion: Predicado que permite verificar si existe una victoria diagonal superior en el tablero.
+
+check_diagonal_superior_win(Board, _, 0) :-
+    length(Board, Largo),
+    Largo < 4.
+
+check_diagonal_superior_win([A, B, C, D | _], Index1, Winner) :-
+    Index1 >= 4, Index2 is Index1 - 1, Index3 is Index1 - 2, Index4 is Index1 - 3,
+    nth1(Index1, A, PA), nth1(Index2, B, PB), nth1(Index3, C, PC), nth1(Index4, D, PD),
+    PA == PB, PB == PC, PC == PD, PA \= " ",
+    (PA == "red" -> Winner = 1; Winner = 2).
+
+check_diagonal_superior_win(Board, Index, Winner) :-
+    Index > 1, NIndex is Index - 1,
+    check_diagonal_superior_win(Board, NIndex, Winner).
+
+check_diagonal_superior_win([_ | RestOfColumns], _, Winner) :-
+    check_diagonal_superior_win(RestOfColumns, 6, Winner).
+
+% check_diagonal_inferior_win
+% Dominio: Board (board) X Winner (int)
+% Metas Primarias: check_diagonal_win_inferior
+% Metas Secundarias: No posee metas secundarias.
+% Descripcion: Predicado que permite verificar si existe una victoria diagonal inferior en el tablero.
+
+check_diagonal_inferior_win(Board, _, 0) :-
+    length(Board, Largo),
+    Largo < 4.
+
+check_diagonal_inferior_win([A, B, C, D | _], Index1, Winner) :-
+    Index2 is Index1 + 1, Index3 is Index1 + 2, Index4 is Index1 + 3,
+    nth1(Index1, A, PA), nth1(Index2, B, PB), nth1(Index3, C, PC), nth1(Index4, D, PD),
+    PA == PB, PB == PC, PC == PD, PA \= " ",
+    (PA == "red" -> Winner = 1; Winner = 2).
+
+check_diagonal_inferior_win(Board, Index, Winner) :-
+    Index < 6, NIndex is Index + 1,
+    check_diagonal_inferior_win(Board, NIndex, Winner).
+
+check_diagonal_inferior_win([_ | RestOfColumns], _, Winner) :-
+    check_diagonal_inferior_win(RestOfColumns, 1, Winner).
