@@ -29,7 +29,7 @@ play_piece([Board | History], ColumnIndex, Piece, [NewBoard | NewHistory]) :-
 % Descripción: Jugar una ficha en el tablero
 
 play_piece_aux([ActualColumn | RestOfColumns], 1, _, Piece, [NewColumn | RestOfColumns]) :-  
-    push_column(ActualColumn, Piece, NewColumn).
+    push_column(ActualColumn, Piece, NewColumn), !.
 
 play_piece_aux([ActualColumn | RestOfColumns], ColumnIndexVariable, ColumnIndex, Piece, [ActualColumn | NewBoard]) :-
     ColumnIndexVariable > 1,
@@ -132,7 +132,7 @@ fill_column(Column, FilledColumn) :-
 % Descripcion: Predicado que permite verificar si existe una victoria horizontal en un board.
 
 check_horizontal_win([Board | _], Winner) :-
-    check_horizontal_win_aux(Board, Winner).
+    check_horizontal_win_aux(Board, Winner), !.
 
 % check_horizontal_win_aux
 % Dominio: Board (board) X Winner (int)
@@ -172,13 +172,11 @@ check_row_win(Board, Index, Winner) :-
 % Metas Secundarias: fill_board, check_diagonal_superior_win, check_diagonal_inferior_win
 % Descripcion: Predicado que permite verificar si existe una victoria diagonal en el tablero.
 
-check_diagonal_win(_, 0).
-
 check_diagonal_win([Board | _], Winner) :-
     fill_board(Board, FilledBoard),
-    (check_diagonal_superior_win(FilledBoard, 6, Winner) ;
-    check_diagonal_inferior_win(FilledBoard, 1, Winner)),
-    Winner \= 0, !.
+    check_diagonal_inferior_win(FilledBoard, 1, WinnerInferior),
+    (WinnerInferior = 0 -> check_diagonal_superior_win(FilledBoard, 6, WinnerSuperior),
+    Winner = WinnerSuperior ; Winner = WinnerInferior), !.
 
 % check_diagonal_superior_win
 % Dominio: Board (board) X Winner (int)
@@ -225,3 +223,15 @@ check_diagonal_inferior_win(Board, Index, Winner) :-
 
 check_diagonal_inferior_win([_ | RestOfColumns], _, Winner) :-
     check_diagonal_inferior_win(RestOfColumns, 1, Winner).
+
+% who_is_winner
+% Dominio: Board (board) X Winner (int)
+% Metas Primarias: who_is_winner
+% Metas Secundarias: check_vertical_win, check_horizontal_win, check_diagonal_win y sus respectivas secundarias.
+% Descripcion: Predicado que permite verificar si existe una victoria en el tablero.
+
+who_is_winner(Board, Winner) :-
+    (check_vertical_win(Board, Winner), Winner \= 0 ->  true ;
+    check_horizontal_win(Board, Winner), Winner \= 0 ->  true ;   
+    check_diagonal_win(Board, Winner), Winner \= 0 ->  true ;   
+    Winner = 0).
