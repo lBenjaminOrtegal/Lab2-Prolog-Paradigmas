@@ -1,5 +1,7 @@
 % ---------- TDA BOARD ---------- %
-
+:- module(tda_board, [board/1, play_piece/4, play_piece_aux/5, update_history/4, push_column/3, can_play/1, check_vertical_win/2,
+    check_vertical_win_aux/2, check_column_win/2, fill_board/2, fill_column/2, check_horizontal_win/2, check_horizontal_win_aux/2,
+    check_row_win/3, check_diagonal_win/2, check_diagonal_superior_win/3, check_diagonal_inferior_win/3, who_is_winner/2]).
 % ---------- Constructor ---------- %
 
 % board

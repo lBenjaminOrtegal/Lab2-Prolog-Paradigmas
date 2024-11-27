@@ -1,4 +1,5 @@
 % TDA PIECE
+:- module(tda_piece, [piece/2]).
 
 % --- Constructor --- %
 

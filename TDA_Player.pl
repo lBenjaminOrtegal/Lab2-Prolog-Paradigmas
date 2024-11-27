@@ -1,4 +1,13 @@
 % TDA PLAYER
+:- module(tda_player, 
+    [player/8,
+    get_player_id/2,
+    get_player_nombre/2,
+    get_player_color/2,
+    get_player_wins/2,
+    get_player_losses/2,
+    get_player_draws/2,
+    get_player_pieces/2]).
 
 % --- Constructor --- %
 
