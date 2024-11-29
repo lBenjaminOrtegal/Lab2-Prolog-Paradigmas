@@ -65,7 +65,11 @@ push_column(Column, Piece, [Piece | Column]) :-
 
 can_play([[A, B, C, D, E, F, G] | _]) :- 
     length(A, LA), length(B, LB), length(C, LC), length(D, LD), length(E, LE), length(F, LF), length(G, LG),
-    (LA, LB, LC, LD, LE, LF, LG) == 6 -> false ; true.
+    LA < 6, LB < 6, LC < 6, LD < 6, LE < 6, LF < 6, LG < 6,
+    who_is_winner([[A, B, C, D, E, F, G] | _], Winner),
+    Winner == 0.
+
+% (define (board-can-play? board) (if (and (not (my-and-map is-full-column? board)) (= (board-who-is-winner board) 0)) #t #f))
 
 % check_vertical_win
 % Dominio: Board (board) X Winner (int)
