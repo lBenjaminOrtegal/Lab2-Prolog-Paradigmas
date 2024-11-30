@@ -1,5 +1,5 @@
 % ---------- TDA BOARD ---------- %
-:- module(tda_board, [board/1, play_piece/4, play_piece_aux/5, update_history/4, push_column/3, can_play/1, check_vertical_win/2,
+:- module(tda_board_21542985_ortegaquinteros, [board/1, play_piece/4, play_piece_aux/5, update_history/4, push_column/3, can_play/1, check_vertical_win/2,
     check_vertical_win_aux/2, check_column_win/2, fill_board/2, fill_column/2, check_horizontal_win/2, check_horizontal_win_aux/2,
     check_row_win/3, check_diagonal_win/2, check_diagonal_superior_win/3, check_diagonal_inferior_win/3, who_is_winner/2]).
 % ---------- Constructor ---------- %
@@ -30,11 +30,11 @@ play_piece([Board | History], ColumnIndex, Piece, [NewBoard | NewHistory]) :-
 % Metas Secundarias: play_piece_aux, push_column, update_history
 % Descripción: Jugar una ficha en el tablero
 
-play_piece_aux([ActualColumn | RestOfColumns], 1, _, Piece, [NewColumn | RestOfColumns]) :-  
+play_piece_aux([ActualColumn | RestOfColumns], 0, _, Piece, [NewColumn | RestOfColumns]) :-  
     push_column(ActualColumn, Piece, NewColumn), !.
 
 play_piece_aux([ActualColumn | RestOfColumns], ColumnIndexVariable, ColumnIndex, Piece, [ActualColumn | NewBoard]) :-
-    ColumnIndexVariable > 1,
+    ColumnIndexVariable > 0,
     NewColumnIndexVariable is ColumnIndexVariable - 1,
     play_piece_aux(RestOfColumns, NewColumnIndexVariable, ColumnIndex, Piece, NewBoard).
 
@@ -65,12 +65,8 @@ push_column(Column, Piece, [Piece | Column]) :-
 
 can_play([[A, B, C, D, E, F, G] | _]) :- 
     length(A, LA), length(B, LB), length(C, LC), length(D, LD), length(E, LE), length(F, LF), length(G, LG),
-    LA < 6, LB < 6, LC < 6, LD < 6, LE < 6, LF < 6, LG < 6,
-    who_is_winner([[A, B, C, D, E, F, G] | _], Winner),
-    Winner == 0.
-
-% (define (board-can-play? board) (if (and (not (my-and-map is-full-column? board)) (= (board-who-is-winner board) 0)) #t #f))
-
+    LA < 6, LB < 6, LC < 6, LD < 6, LE < 6, LF < 6, LG < 6.
+    
 % check_vertical_win
 % Dominio: Board (board) X Winner (int)
 % Metas Primarias: check_vertical_win 

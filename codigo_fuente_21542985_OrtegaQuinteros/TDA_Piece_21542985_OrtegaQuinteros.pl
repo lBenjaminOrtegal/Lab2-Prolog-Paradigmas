@@ -1,5 +1,5 @@
 % TDA PIECE
-:- module(tda_piece, [piece/2]).
+:- module(tda_piece_21542985_ortegaquinteros, [piece/2]).
 
 % --- Constructor --- %
 

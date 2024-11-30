@@ -1,0 +1,1 @@
+Cuando termine el script se debe presionar “Enter” y “.” para finalizar la ejecución.
